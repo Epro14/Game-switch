@@ -1,36 +1,19 @@
-name: Build Switch App
-on: [push]
+name: Build
+on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install devkitPro Manual
+      - name: Build in Docker
+        # Usiamo un'immagine che non passa dai server dkp-pacman
         run: |
-          # Aggiungiamo il repository a mano
-          sudo apt-get update
-          sudo apt-get install -y wget gpg
-          wget https://apt.devkitpro.org/install-devkitpro-pacman
-          chmod +x install-devkitpro-pacman
-          # Usiamo --noconfirm per evitare che si fermi a chiedere permessi
-          sudo ./install-devkitpro-pacman --noconfirm
-          
-          # Ora installiamo i pezzi necessari uno alla volta
-          sudo /opt/devkitpro/pacman/bin/dkp-pacman -Syu --noconfirm
-          echo -e "all\n" | sudo /opt/devkitpro/pacman/bin/dkp-pacman -S --needed --noconfirm switch-dev switch-sdl2 switch-libpng
+          docker run --rm -v ${{ github.workspace }}:/src -w /src/project devkitpro/devkitswitch:latest /bin/bash -c "make"
 
-      - name: Build Game
-        run: |
-          export DEVKITPRO=/opt/devkitpro
-          export PATH=$DEVKITPRO/devkitARM/bin:$DEVKITPRO/tools/bin:$PATH
-          # Forza l'entrata nella cartella project
-          cd project
-          make
-
-      - name: Upload Result
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: StarClash-Game
+          name: Game-Switch
           path: project/*.nro
