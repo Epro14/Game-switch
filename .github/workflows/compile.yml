@@ -9,29 +9,33 @@ jobs:
 
       - name: Install devkitPro
         run: |
-          # 1. Scarica e installa l'installer base
+          # 1. Scarica e installa l'installer di base
           wget https://apt.devkitpro.org/install-devkitpro-pacman
           chmod +x install-devkitpro-pacman
           sudo ./install-devkitpro-pacman --noconfirm
           
-          # 2. Crea il link per dkp-pacman
+          # 2. Crea il link per il comando pacman
           sudo ln -sf /opt/devkitpro/pacman/bin/dkp-pacman /usr/local/bin/dkp-pacman
           
           # 3. Aggiorna e installa switch-dev (preme INVIO automatico)
           sudo dkp-pacman -Syu --noconfirm
           echo -e "\n" | sudo dkp-pacman -S --needed --noconfirm switch-dev
           
-          # 4. Installa SDL2 e le librerie grafiche (nomi corretti)
+          # 4. Installa SDL2 e librerie grafiche
           sudo dkp-pacman -S --needed --noconfirm switch-sdl2 switch-libpng switch-zlib
 
       - name: Build Game
         run: |
+          # Impostiamo i percorsi per il compilatore
           export DEVKITPRO=/opt/devkitpro
           export PATH=$DEVKITPRO/devkitARM/bin:$DEVKITPRO/tools/bin:$PATH
+          
+          # ENTRIAMO NELLA CARTELLA PROJECT ED ESEGUIAMO IL MAKE
+          cd project
           make
 
       - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
           name: StarClash-Game
-          path: ./*.nro
+          path: project/*.nro
