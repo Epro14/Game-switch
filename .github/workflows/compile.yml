@@ -9,20 +9,22 @@ jobs:
 
       - name: Install devkitPro
         run: |
-          # Scarica e installa il gestore pacchetti di devkitPro
+          # Scarichiamo l'installer
           wget https://apt.devkitpro.org/install-devkitpro-pacman
           chmod +x install-devkitpro-pacman
           sudo ./install-devkitpro-pacman --noconfirm
           
-          # Installa tutto il necessario per la Switch e SDL2
-          sudo /opt/devkitpro/pacman/bin/dkp-pacman -Syu --noconfirm
-          sudo /opt/devkitpro/pacman/bin/dkp-pacman -S --needed --noconfirm switch-dev switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
+          # Creiamo un collegamento per sicurezza
+          sudo ln -sf /opt/devkitpro/pacman/bin/dkp-pacman /usr/local/bin/dkp-pacman
+          
+          # Ora installiamo i pacchetti Switch
+          sudo dkp-pacman -Syu --noconfirm
+          sudo dkp-pacman -S --needed --noconfirm switch-dev switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
 
       - name: Build Game
         run: |
-          # Imposta i percorsi per il compilatore
           export DEVKITPRO=/opt/devkitpro
-          export PATH=$DEVKITPRO/devkitARM/bin:$PATH
+          export PATH=$DEVKITPRO/devkitARM/bin:$DEVKITPRO/tools/bin:$PATH
           make
 
       - name: Upload Result
