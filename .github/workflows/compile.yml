@@ -3,19 +3,27 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitswitch:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build
+      - name: Install devkitPro
         run: |
-          # Aggiorna i pacchetti e installa le librerie per Switch
-          dkp-pacman -Syu --noconfirm
-          dkp-pacman -S --needed --noconfirm switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
+          sudo apt-get update
+          sudo apt-get install -y GnuPG
+          wget https://apt.devkitpro.org/install-devkitpro-pacman
+          chmod +x install-devkitpro-pacman
+          sudo ./install-devkitpro-pacman
+          sudo /opt/devkitpro/pacman/bin/dkp-pacman -Syu --noconfirm
+          sudo /opt/devkitpro/pacman/bin/dkp-pacman -S --needed --noconfirm switch-dev switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
+
+      - name: Build Game
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export PATH=$DEVKITPRO/devkitARM/bin:$PATH
           make
 
-      - name: Upload NRO
+      - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
           name: StarClash-Game
