@@ -7,18 +7,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install devkitPro
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y GnuPG
-          wget https://apt.devkitpro.org/install-devkitpro-pacman
-          chmod +x install-devkitpro-pacman
-          sudo ./install-devkitpro-pacman
-          sudo /opt/devkitpro/pacman/bin/dkp-pacman -Syu --noconfirm
-          sudo /opt/devkitpro/pacman/bin/dkp-pacman -S --needed --noconfirm switch-dev switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
+      - name: Setup devkitPro
+        # Questa azione installa tutto il necessario automaticamente
+        uses: devkitPro/setup-devkitpro@v1
+        with:
+          dkp-packages: |
+            switch-dev
+            switch-sdl2
+            switch-sdl2-image
+            switch-libpng
+            switch-zlib
 
       - name: Build Game
         run: |
+          # Diciamo al sistema dove sono i compilatori
           export DEVKITPRO=/opt/devkitpro
           export PATH=$DEVKITPRO/devkitARM/bin:$PATH
           make
