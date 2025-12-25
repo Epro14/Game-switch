@@ -3,14 +3,29 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitswitch:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install devkitPro Manual
+        run: |
+          # Aggiungiamo il repository a mano
+          sudo apt-get update
+          sudo apt-get install -y wget gpg
+          wget https://apt.devkitpro.org/install-devkitpro-pacman
+          chmod +x install-devkitpro-pacman
+          # Usiamo --noconfirm per evitare che si fermi a chiedere permessi
+          sudo ./install-devkitpro-pacman --noconfirm
+          
+          # Ora installiamo i pezzi necessari uno alla volta
+          sudo /opt/devkitpro/pacman/bin/dkp-pacman -Syu --noconfirm
+          echo -e "all\n" | sudo /opt/devkitpro/pacman/bin/dkp-pacman -S --needed --noconfirm switch-dev switch-sdl2 switch-libpng
+
       - name: Build Game
         run: |
-          # Qui non serve installare nulla, è già tutto pronto!
+          export DEVKITPRO=/opt/devkitpro
+          export PATH=$DEVKITPRO/devkitARM/bin:$DEVKITPRO/tools/bin:$PATH
+          # Forza l'entrata nella cartella project
           cd project
           make
 
