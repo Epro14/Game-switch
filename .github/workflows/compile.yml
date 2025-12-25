@@ -1,0 +1,19 @@
+name: Build Switch App
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitswitch:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build
+        run: |
+          # Installa le librerie che ci mancavano
+          dkp-pacman -S --needed --noconfirm switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
+          make
+      - name: Upload NRO
+        uses: actions/upload-artifact@v3
+        with:
+          name: StarClash-Game
+          path: ./*.nro
