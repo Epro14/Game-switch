@@ -7,12 +7,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Build
         run: |
-          # Aggiorna e installa le librerie
+          # Aggiorna i pacchetti e installa le librerie per Switch
           dkp-pacman -Syu --noconfirm
           dkp-pacman -S --needed --noconfirm switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
           make
+
       - name: Upload NRO
         uses: actions/upload-artifact@v4
         with:
