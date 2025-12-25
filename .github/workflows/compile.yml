@@ -7,19 +7,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup devkitPro
-        # Il nome corretto è devkitpro/setup-devkitpro@v1.0.1
-        uses: devkitpro/setup-devkitpro@v1.0.1
-        with:
-          dkp-packages: |
-            switch-dev
-            switch-sdl2
-            switch-sdl2-image
-            switch-libpng
-            switch-zlib
+      - name: Install devkitPro
+        run: |
+          # Scarica e installa il gestore pacchetti di devkitPro
+          wget https://apt.devkitpro.org/install-devkitpro-pacman
+          chmod +x install-devkitpro-pacman
+          sudo ./install-devkitpro-pacman --noconfirm
+          
+          # Installa tutto il necessario per la Switch e SDL2
+          sudo /opt/devkitpro/pacman/bin/dkp-pacman -Syu --noconfirm
+          sudo /opt/devkitpro/pacman/bin/dkp-pacman -S --needed --noconfirm switch-dev switch-sdl2 switch-sdl2-image switch-libpng switch-zlib
 
       - name: Build Game
         run: |
+          # Imposta i percorsi per il compilatore
           export DEVKITPRO=/opt/devkitpro
           export PATH=$DEVKITPRO/devkitARM/bin:$PATH
           make
